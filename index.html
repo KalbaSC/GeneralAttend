@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#000000">
+  <title>مسح الحضور - كرة القدم</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    @font-face {
+      font-family: 'NotoKufiArabic';
+      src: url('NotoKufiArabic.ttf') format('truetype');
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: 'NotoKufiArabic', 'Cairo', sans-serif;
+      background: url('black_and_yellow_grunge_background.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-container {
+      background: #111;
+      border-bottom: 3px solid #f4e733;
+    }
+
+    .header-right {
+      max-width: 1170px;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      padding: 20px 42px;
+    }
+
+    .logo {
+      height: 70px;
+    }
+
+    .divider {
+      width: 1.5px;
+      height: 65px;
+      background-color: #f4e733;
+    }
+
+    .header-info {
+      text-align: center;
+    }
+
+    .arabic-name {
+      font-weight: bold;
+      font-size: 20px;
+    }
+
+    .english-name {
+      font-size: 14px;
+      color: #f4e733;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-bottom: 40px;
+    }
+
+    h2 {
+      color: #f4e733;
+      text-align: center;
+      margin: 30px 0 10px;
+      font-size: 17px;
+    }
+
+    #reader {
+      width: 320px;
+      border: 3px solid #f4e733;
+      border-radius: 15px;
+      overflow: hidden;
+      background: white;
+    }
+
+    #status {
+      text-align: center;
+      font-size: 18px;
+      color: #f4e733;
+      margin-top: 15px;
+    }
+
+    footer {
+      background-color: #111;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      border-top: 3px solid #f4e733;
+    }
+
+    .social-icons a {
+      color: white;
+      margin: 0 8px;
+      font-size: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .header-right {
+        flex-direction: row;
+        padding: 10px;
+        gap: 10px;
+      }
+
+      .logo {
+        height: 50px;
+      }
+
+      .arabic-name {
+        font-size: 16px;
+      }
+
+      .english-name {
+        font-size: 12px;
+      }
+
+      #reader {
+        width: 90%;
+      }
+
+      #status {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header class="header-container">
+  <div class="header-right">
+    <img src="Picture3.png" alt="شعار الشارقة" class="logo">
+    <div class="divider"></div>
+    <img src="logo.png" alt="شعار نادي كلباء" class="logo">
+    <div class="header-info">
+      <div class="arabic-name">نادي كلباء الرياضي الثقافي</div>
+      <div class="english-name">KALBA SPORTS & CULTURAL CLUB</div>
+    </div>
+  </div>
+</header>
+
+<main>
+<div style="background: black; padding: 12px 20px; border-radius: 12px; text-align: center; margin-bottom: 15px;">
+  <h2 style="margin: 0; color: #f4e733;">مسح رمز الاستجابة السريعة للحضور - كرة القدم</h2>
+</div>
+
+<div id="reader"></div>
+
+<div id="status" style="background: black; padding: 10px 15px; border-radius: 10px; margin-top: 15px;">
+  يرجى توجيه الكاميرا نحو رمز QR الخاص باللاعب
+</div>
+</main>
+
+<footer>
+  <p>© 2025 نادي كلباء الرياضي الثقافي - جميع الحقوق محفوظة</p>
+  <div class="social-icons">
+    <a href="https://facebook.com/Kalbasc1" target="_blank"><i class="fab fa-facebook-f"></i></a>
+    <a href="https://instagram.com/kalbasc" target="_blank"><i class="fab fa-instagram"></i></a>
+    <a href="https://x.com/Kalba_sc" target="_blank"><i class="fab fa-twitter"></i></a>
+    <a href="https://youtube.com/@kalbasc" target="_blank"><i class="fab fa-youtube"></i></a>
+    <a href="https://tiktok.com/@kalbasc" target="_blank"><i class="fab fa-tiktok"></i></a>
+  </div>
+</footer>
+
+<script>
+  const GAME_NAME = "كرة القدم"; // ✅ Adjust per page
+
+  const statusDiv = document.getElementById("status");
+
+  function markAttendance(code) {
+    const parts = code.split('|');
+    const id = parts[0] || "UNKNOWN";
+    const encodedName = parts[1] || "UNKNOWN";
+    const encodedParent = parts[2] || "UNKNOWN";
+
+  const name = decodeURIComponent(encodedName);
+  const parent = decodeURIComponent(encodedParent);
+
+    statusDiv.innerHTML = `
+      <p>✅ تم تسجيل الحضور</p>
+      <p><strong>الاسم:</strong> ${name}</p>
+      <p><strong>ولي الأمر:</strong> ${parent}</p>
+      <p><strong>اللعبة:</strong> ${GAME_NAME}</p>
+    `;
+
+    const formData = new FormData();
+    formData.append("id", code);
+    formData.append("name", name);
+    formData.append("parent", parent);
+    formData.append("game", GAME_NAME);
+    formData.append("date", new Date().toISOString());
+
+    fetch("https://script.google.com/macros/s/AKfycbya_Msa3PLtVglvN8xhgYbADYM7XuDJLx8VXuwVEbNBscT3bUuzWnmzWfCXxu9HjfoL/exec", {
+      method: "POST",
+      mode: "no-cors",
+      body: formData
+    });
+
+    setTimeout(() => location.reload(), 4000);
+  }
+
+const html5QrCode = new Html5Qrcode("reader");
+html5QrCode.start(
+  { facingMode: "environment" },
+  {
+    fps: 20, // increase frame rate
+    qrbox: { width: 300, height: 300 }, // larger scan box
+    aspectRatio: 1.0,
+    experimentalFeatures: {
+      useBarCodeDetectorIfSupported: true // use better scanner if browser allows
+    }
+  },
+  qrCodeMessage => {
+    html5QrCode.stop();
+    markAttendance(qrCodeMessage);
+  },
+  error => {
+    // optional: show scanning status
+    // console.warn(`QR error: ${error}`);
+  }
+);
+
+</script>
+
+</body>
+</html>
