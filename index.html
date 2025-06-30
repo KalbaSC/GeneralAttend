@@ -165,6 +165,13 @@
 <div id="status" style="background: black; padding: 10px 15px; border-radius: 10px; margin-top: 15px;">
   يرجى توجيه الكاميرا نحو رمز QR الخاص باللاعب
 </div>
+  
+  <div style="margin-top: 25px; background: #000; padding: 15px 20px; border-radius: 12px;">
+  <label for="manualId">أدخل رقم اللاعب (مثال: KalbaSC-17197482 أو الرقم فقط):</label>
+  <input type="text" id="manualId" placeholder="مثال: KalbaSC-17197482" style="width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px; border: none; font-size: 16px;">
+  <button onclick="submitManual()" style="margin-top: 10px; background: #f4e733; color: black; border: none; padding: 10px; width: 100%; font-weight: bold; border-radius: 8px; cursor: pointer;">تسجيل يدوي</button>
+</div>
+
 </main>
 
 <script>
@@ -221,7 +228,34 @@ html5QrCode.start(
     // console.warn(`QR error: ${error}`);
   }
 );
+function submitManual() {
+  const manualInput = document.getElementById("manualId").value.trim();
+  if (!manualInput) return alert("يرجى إدخال كود اللاعب أو الرقم.");
 
+  // Allow full or partial format
+  const match = manualInput.match(/KalbaSC-(\d+)/) || manualInput.match(/^(\d{6,})$/);
+  if (!match) {
+    alert("⚠️ يرجى إدخال الكود بالشكل الصحيح (مثال: KalbaSC-17197482 أو 17197482).");
+    return;
+  }
+
+  const idOnly = match[1];
+
+  // Fetch name & parent from registration sheet using backend
+  fetch(`https://script.google.com/macros/s/AKfycbwl8RzWIdUzQjaB4hUgheQxMOuC_yvIQ3nUl-rfzBwYiQA58-R8BejMrF7iXuB3WKIq/exec?id=${idOnly}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) {
+        alert("❌ لم يتم العثور على هذا الرقم.");
+        return;
+      }
+
+      // Use same attendance function as scanner
+      const qrCode = `KalbaSC-${idOnly}|${encodeURIComponent(data.name)}|${encodeURIComponent(data.parent)}`;
+      markAttendance(qrCode);
+    })
+    .catch(() => alert("⚠️ تعذر الاتصال بالخادم."));
+}
 </script>
 <footer>
   <p>© 2025 نادي كلباء الرياضي الثقافي - جميع الحقوق محفوظة</p>
