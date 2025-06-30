@@ -5,7 +5,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#000000">
-  <title>مسح الحضور </title>
+  <title>مسح الحضور - كرة القدم</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://unpkg.com/html5-qrcode"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -157,7 +157,7 @@
 
 <main>
 <div style="background: black; padding: 12px 20px; border-radius: 12px; text-align: center; margin-bottom: 15px;">
-  <h2 style="margin: 0; color: #f4e733;">مسح رمز الاستجابة السريعة للحضور </h2>
+  <h2 style="margin: 0; color: #f4e733;">مسح رمز الاستجابة السريعة للحضور - كرة القدم</h2>
 </div>
 
 <div id="reader"></div>
@@ -165,103 +165,70 @@
 <div id="status" style="background: black; padding: 10px 15px; border-radius: 10px; margin-top: 15px;">
   يرجى توجيه الكاميرا نحو رمز QR الخاص باللاعب
 </div>
-  <div style="margin-top: 25px; background: rgba(0,0,0,0.6); padding: 20px; border-radius: 12px;">
-  <h2 style="color: #f4e733; font-size: 16px;">في حال عدم توفر الكاميرا أو الإضاءة</h2>
-  <input id="manualInput" type="text" placeholder="أدخل رقم المعرف كاملاً" 
-         style="width: 250px; padding: 10px; border-radius: 8px; border: none; margin: 10px 0; text-align: center;">
-  <br>
-  <button onclick="handleManualInput()" 
-          style="padding: 10px 20px; background-color: #f4e733; border: none; border-radius: 8px; color: black; font-weight: bold;">
-    تأكيد الحضور يدوياً
-  </button>
-</div>
-
 </main>
 
 <script>
+  const GAME_NAME = "كرة القدم"; // ✅ Adjust per page
+
   const statusDiv = document.getElementById("status");
 
   function markAttendance(code) {
-    let id = "";
-    let name = "";
-    let parent = "";
+    const parts = code.split('|');
+    const id = parts[0] || "UNKNOWN";
+    const encodedName = parts[1] || "UNKNOWN";
+    const encodedParent = parts[2] || "UNKNOWN";
 
-    // Build from QR or manual
-    if (code.includes("|")) {
-      const parts = code.split('|');
-      id = parts[0] || "UNKNOWN";
-      name = decodeURIComponent(parts[1] || "");
-      parent = decodeURIComponent(parts[2] || "");
-    } else {
-      id = "KalbaSC-" + code;
-      name = "سيظهر في التقرير";
-      parent = "سيظهر في التقرير";
-    }
+  const name = decodeURIComponent(encodedName);
+  const parent = decodeURIComponent(encodedParent);
 
-    // Show sending message
     statusDiv.innerHTML = `
-      <p>📨 يتم إرسال البيانات ...</p>
-      <p><strong>المعرف:</strong> ${id}</p>
+      <p>✅ تم تسجيل الحضور</p>
+      <p><strong>الاسم:</strong> ${name}</p>
+      <p><strong>ولي الأمر:</strong> ${parent}</p>
+      <p><strong>اللعبة:</strong> ${GAME_NAME}</p>
     `;
 
     const formData = new FormData();
     formData.append("id", code);
     formData.append("name", name);
     formData.append("parent", parent);
+    formData.append("game", GAME_NAME);
     formData.append("date", new Date().toISOString());
 
-    // ✅ Send without trying to read response (no-cors)
-    fetch("https://script.google.com/macros/s/AKfycbybV7alsfNrHYAyu0iE5OZMtEGWEcKeGV4Z4c0iUGMAvYFjebybRUe1N6I04JeW4VjByQ/exec", {
+    fetch("https://script.google.com/macros/s/AKfycbya_Msa3PLtVglvN8xhgYbADYM7XuDJLx8VXuwVEbNBscT3bUuzWnmzWfCXxu9HjfoL/exec", {
       method: "POST",
       mode: "no-cors",
-      body: formData,
+      body: formData
     });
 
-    // ✅ Fake confirmation
-    setTimeout(() => {
-      statusDiv.innerHTML = `
-        <p>✅ تم تسجيل الحضور</p>
-        <p><strong>الاسم:</strong> ${name}</p>
-        <p><strong>ولي الأمر:</strong> ${parent}</p>
-        <p><strong>المعرف:</strong> ${id}</p>
-      `;
-    }, 1000);
-
-    // Optional reload after 5s
-    setTimeout(() => location.reload(), 5000);
+    setTimeout(() => location.reload(), 4000);
   }
 
-  const html5QrCode = new Html5Qrcode("reader");
-  html5QrCode.start(
-    { facingMode: "environment" },
-    {
-      fps: 20,
-      qrbox: { width: 300, height: 300 },
-      aspectRatio: 1.0,
-      experimentalFeatures: {
-        useBarCodeDetectorIfSupported: true
-      }
-    },
-    qrCodeMessage => {
-      html5QrCode.stop();
-      markAttendance(qrCodeMessage);
-    },
-    error => {}
-  );
-
-  function handleManualInput() {
-    const manualCode = document.getElementById("manualInput").value.trim();
-    if (manualCode === "") {
-      alert("يرجى إدخال رقم المعرف");
-      return;
+const html5QrCode = new Html5Qrcode("reader");
+html5QrCode.start(
+  { facingMode: "environment" },
+  {
+    fps: 20, // increase frame rate
+    qrbox: { width: 300, height: 300 }, // larger scan box
+    aspectRatio: 1.0,
+    experimentalFeatures: {
+      useBarCodeDetectorIfSupported: true // use better scanner if browser allows
     }
-    markAttendance(manualCode);
+  },
+  qrCodeMessage => {
+    html5QrCode.stop();
+    markAttendance(qrCodeMessage);
+  },
+  error => {
+    // optional: show scanning status
+    // console.warn(`QR error: ${error}`);
   }
+);
+
 </script>
-  
 <footer>
   <p>© 2025 نادي كلباء الرياضي الثقافي - جميع الحقوق محفوظة</p>
-  <p style="font-size: 14px; color: #aaa; margin-top: -10px;">تم التطوير بواسطة روند أحمد الضمور</p>
+    <p style="font-size: 14px; color: #aaa; margin-top: -10px;">تم التطوير بواسطة روند أحمد الضمور</p>
   <div class="social-icons">
     <a href="https://facebook.com/Kalbasc1" target="_blank"><i class="fab fa-facebook-f"></i></a>
     <a href="https://instagram.com/kalbasc" target="_blank"><i class="fab fa-instagram"></i></a>
