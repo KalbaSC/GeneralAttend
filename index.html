@@ -199,7 +199,7 @@
     formData.append("parent", parent);
     formData.append("date", new Date().toISOString());
 
-    fetch("https://script.google.com/macros/s/AKfycbwPV051ivvWJnrl081wkndwbW15NOQ2_qg5XMEZ_OarwjS_iITPjKhmA7BIFGoRr4jPqQ/exec", {
+    fetch("https://script.google.com/macros/s/AKfycbzXwkw2AEELlxtMbMXLGq1sJhzlG6FlF7CtaZfQGSzNJd8UqAepgrMNjTgTNlGe_Nsb1Q/exec", {
       method: "POST",
       mode: "no-cors",
       body: formData
@@ -242,7 +242,7 @@ function submitManual() {
   const idOnly = match[1];
 
   // Fetch name & parent from registration sheet using backend
-fetch(`https://script.google.com/macros/s/AKfycbwPV051ivvWJnrl081wkndwbW15NOQ2_qg5XMEZ_OarwjS_iITPjKhmA7BIFGoRr4jPqQ/exec?id=${idOnly}`)
+fetch(`https://script.google.com/macros/s/AKfycbzXwkw2AEELlxtMbMXLGq1sJhzlG6FlF7CtaZfQGSzNJd8UqAepgrMNjTgTNlGe_Nsb1Q/exec?id=${idOnly}`)
     .then(res => res.json())
     .then(data => {
       if (data.error) {
