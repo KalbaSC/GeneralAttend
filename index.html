@@ -156,7 +156,7 @@
 
 <main>
 <div style="background: black; padding: 12px 20px; border-radius: 12px; text-align: center; margin-bottom: 15px;">
-  <h2 style="margin: 0; color: #f4e733;">مسح رمز الاستجابة السريعة للحضور - كرة القدم</h2>
+  <h2 style="margin: 0; color: #f4e733;">مسح رمز الاستجابة السريعة للحضور </h2>
 </div>
 
 <div id="reader"></div>
@@ -164,6 +164,17 @@
 <div id="status" style="background: black; padding: 10px 15px; border-radius: 10px; margin-top: 15px;">
   يرجى توجيه الكاميرا نحو رمز QR الخاص باللاعب
 </div>
+  <div style="margin-top: 25px; background: rgba(0,0,0,0.6); padding: 20px; border-radius: 12px;">
+  <h2 style="color: #f4e733; font-size: 16px;">في حال عدم توفر الكاميرا أو الإضاءة</h2>
+  <input id="manualInput" type="text" placeholder="أدخل رقم المعرف كاملاً" 
+         style="width: 250px; padding: 10px; border-radius: 8px; border: none; margin: 10px 0; text-align: center;">
+  <br>
+  <button onclick="handleManualInput()" 
+          style="padding: 10px 20px; background-color: #f4e733; border: none; border-radius: 8px; color: black; font-weight: bold;">
+    تأكيد الحضور يدوياً
+  </button>
+</div>
+
 </main>
 
 <footer>
@@ -178,7 +189,6 @@
 </footer>
 
 <script>
-  const GAME_NAME = "كرة القدم"; // ✅ Adjust per page
 
   const statusDiv = document.getElementById("status");
 
@@ -195,17 +205,16 @@
       <p>✅ تم تسجيل الحضور</p>
       <p><strong>الاسم:</strong> ${name}</p>
       <p><strong>ولي الأمر:</strong> ${parent}</p>
-      <p><strong>اللعبة:</strong> ${GAME_NAME}</p>
+      <p><strong>المعرف:</strong> ${id}</p>
     `;
 
     const formData = new FormData();
     formData.append("id", code);
     formData.append("name", name);
     formData.append("parent", parent);
-    formData.append("game", GAME_NAME);
     formData.append("date", new Date().toISOString());
 
-    fetch("https://script.google.com/macros/s/AKfycbya_Msa3PLtVglvN8xhgYbADYM7XuDJLx8VXuwVEbNBscT3bUuzWnmzWfCXxu9HjfoL/exec", {
+    fetch("https://script.google.com/macros/s/AKfycbx5ucYqBqa8gOVZFCIbfaEQbxUdN_fs0GERJtz6EEtyxdYXOBzSpbqFmMH_heYnrAvC/exec", {
       method: "POST",
       mode: "no-cors",
       body: formData
@@ -234,6 +243,15 @@ html5QrCode.start(
     // console.warn(`QR error: ${error}`);
   }
 );
+
+  function handleManualInput() {
+  const manualCode = document.getElementById("manualInput").value.trim();
+  if (manualCode === "") {
+    alert("يرجى إدخال رقم المعرف");
+    return;
+  }
+  markAttendance(manualCode);
+}
 
 </script>
 
