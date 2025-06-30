@@ -5,7 +5,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#000000">
-  <title>مسح الحضور - كرة القدم</title>
+  <title>مسح الحضور </title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://unpkg.com/html5-qrcode"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -183,18 +183,25 @@
   const statusDiv = document.getElementById("status");
 
   function markAttendance(code) {
-    const parts = code.split('|');
-    const id = parts[0] || "UNKNOWN";
-    const encodedName = parts[1] || "UNKNOWN";
-    const encodedParent = parts[2] || "UNKNOWN";
+    let id = "";
+    let name = "";
+    let parent = "";
 
-  const name = decodeURIComponent(encodedName);
-  const parent = decodeURIComponent(encodedParent);
+    if (code.includes("|")) {
+      // QR format: KalbaSC-183456|encodedName|encodedParent
+      const parts = code.split('|');
+      id = parts[0] || "UNKNOWN";
+      name = decodeURIComponent(parts[1] || "UNKNOWN");
+      parent = decodeURIComponent(parts[2] || "UNKNOWN");
+    } else {
+      // Manual entry: just the numeric ID (e.g. 183456)
+      id = code;
+      name = "جارٍ التحقق..."; // temporary label
+      parent = "";
+    }
 
     statusDiv.innerHTML = `
-      <p>✅ تم تسجيل الحضور</p>
-      <p><strong>الاسم:</strong> ${name}</p>
-      <p><strong>ولي الأمر:</strong> ${parent}</p>
+      <p>📨 يتم إرسال البيانات ...</p>
       <p><strong>المعرف:</strong> ${id}</p>
     `;
 
@@ -213,35 +220,34 @@
     setTimeout(() => location.reload(), 4000);
   }
 
-const html5QrCode = new Html5Qrcode("reader");
-html5QrCode.start(
-  { facingMode: "environment" },
-  {
-    fps: 20, // increase frame rate
-    qrbox: { width: 300, height: 300 }, // larger scan box
-    aspectRatio: 1.0,
-    experimentalFeatures: {
-      useBarCodeDetectorIfSupported: true // use better scanner if browser allows
+  const html5QrCode = new Html5Qrcode("reader");
+  html5QrCode.start(
+    { facingMode: "environment" },
+    {
+      fps: 20,
+      qrbox: { width: 300, height: 300 },
+      aspectRatio: 1.0,
+      experimentalFeatures: {
+        useBarCodeDetectorIfSupported: true
+      }
+    },
+    qrCodeMessage => {
+      html5QrCode.stop();
+      markAttendance(qrCodeMessage);
+    },
+    error => {
+      // you can add scanning status here if needed
     }
-  },
-  qrCodeMessage => {
-    html5QrCode.stop();
-    markAttendance(qrCodeMessage);
-  },
-  error => {
-    // optional: show scanning status
-    // console.warn(`QR error: ${error}`);
-  }
-);
+  );
 
   function handleManualInput() {
-  const manualCode = document.getElementById("manualInput").value.trim();
-  if (manualCode === "") {
-    alert("يرجى إدخال رقم المعرف");
-    return;
+    const manualCode = document.getElementById("manualInput").value.trim();
+    if (manualCode === "") {
+      alert("يرجى إدخال رقم المعرف");
+      return;
+    }
+    markAttendance(manualCode);
   }
-  markAttendance(manualCode);
-}
 
 </script>
   
