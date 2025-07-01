@@ -240,30 +240,39 @@ function startScanner() {
   if (scannerStarted) return;
 
   Html5Qrcode.getCameras().then(devices => {
-    if (devices && devices.length) {
-      const cameraId = devices[0].id; // Use back camera if available
-      scannerStarted = true;
-
-      html5QrCode.start(
-        cameraId,
-        config,
-        qrCodeMessage => {
-          html5QrCode.stop();
-          scannerStarted = false;
-          markAttendance(qrCodeMessage);
-        },
-        error => {
-          console.warn("Scan error", error);
-        }
-      );
-    } else {
+    if (devices.length === 0) {
       alert("❌ لم يتم العثور على كاميرا.");
+      return;
     }
+
+    // Try to find the environment-facing camera (back camera)
+    let backCamera = devices.find(device =>
+      device.label.toLowerCase().includes('back') ||
+      device.label.toLowerCase().includes('environment')
+    );
+
+    const cameraId = backCamera ? backCamera.id : devices[0].id;
+
+    scannerStarted = true;
+
+    html5QrCode.start(
+      cameraId,
+      config,
+      qrCodeMessage => {
+        html5QrCode.stop();
+        scannerStarted = false;
+        markAttendance(qrCodeMessage);
+      },
+      error => {
+        console.warn("Scan error", error);
+      }
+    );
   }).catch(err => {
     console.error("Camera error", err);
     alert("⚠️ لم يتم السماح بالوصول إلى الكاميرا.");
   });
 }
+
 
 function submitManual() {
   const manualInput = document.getElementById("manualId").value.trim();
