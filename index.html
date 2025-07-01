@@ -208,26 +208,39 @@
     setTimeout(() => location.reload(), 4000);
   }
 
-const html5QrCode = new Html5Qrcode("reader");
+const html5QrCode = new Html5QrCode("reader");
+
+const config = {
+  fps: 30, // faster scanning
+  qrbox: { width: 250, height: 250 }, // focused scan box
+  rememberLastUsedCamera: true,
+  aspectRatio: 1.0,
+  supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
+  experimentalFeatures: {
+    useBarCodeDetectorIfSupported: true
+  }
+};
+
+const cameraConfig = {
+  videoConstraints: {
+    facingMode: "environment",
+    width: { ideal: 1280 },
+    height: { ideal: 720 }
+  }
+};
+
 html5QrCode.start(
-  { facingMode: "environment" },
-  {
-    fps: 20, // increase frame rate
-    qrbox: { width: 300, height: 300 }, // larger scan box
-    aspectRatio: 1.0,
-    experimentalFeatures: {
-      useBarCodeDetectorIfSupported: true // use better scanner if browser allows
-    }
-  },
+  cameraConfig,
+  config,
   qrCodeMessage => {
     html5QrCode.stop();
     markAttendance(qrCodeMessage);
   },
   error => {
-    // optional: show scanning status
-    // console.warn(`QR error: ${error}`);
+    // console.warn(error);
   }
 );
+
 function submitManual() {
   const manualInput = document.getElementById("manualId").value.trim();
   if (!manualInput) return alert("يرجى إدخال كود اللاعب أو الرقم.");
