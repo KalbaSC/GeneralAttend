@@ -171,6 +171,9 @@
   <input type="text" id="manualId" placeholder="مثال: KalbaSC-17197482" style="width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px; border: none; font-size: 16px;">
   <button onclick="submitManual()" style="margin-top: 10px; background: #f4e733; color: black; border: none; padding: 10px; width: 100%; font-weight: bold; border-radius: 8px; cursor: pointer;">تسجيل يدوي</button>
 </div>
+<button onclick="startScanner()" style="margin-top: 20px; background: #f4e733; color: black; padding: 10px 20px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer;">
+  📷 بدء تشغيل الكاميرا
+</button>
 
 </main>
 
@@ -208,11 +211,11 @@
     setTimeout(() => location.reload(), 4000);
   }
 
-const html5QrCode = new Html5QrCode("reader");
+const html5QrCode = new Html5Qrcode("reader");
 
 const config = {
-  fps: 30, // faster scanning
-  qrbox: { width: 250, height: 250 }, // focused scan box
+  fps: 30,
+  qrbox: { width: 250, height: 250 },
   rememberLastUsedCamera: true,
   aspectRatio: 1.0,
   supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
@@ -229,17 +232,20 @@ const cameraConfig = {
   }
 };
 
-html5QrCode.start(
-  cameraConfig,
-  config,
-  qrCodeMessage => {
-    html5QrCode.stop();
-    markAttendance(qrCodeMessage);
-  },
-  error => {
-    // console.warn(error);
-  }
-);
+// 👇 define the function instead of calling start directly
+function startScanner() {
+  html5QrCode.start(
+    cameraConfig,
+    config,
+    qrCodeMessage => {
+      html5QrCode.stop();
+      markAttendance(qrCodeMessage);
+    },
+    error => {
+      // Optional: handle scan errors
+    }
+  );
+}
 
 function submitManual() {
   const manualInput = document.getElementById("manualId").value.trim();
