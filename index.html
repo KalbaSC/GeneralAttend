@@ -234,6 +234,8 @@ const cameraConfig = {
 };
 
 // 👇 define the function instead of calling start directly
+  let scannerStarted = false;
+
 function startScanner() {
   html5QrCode.start(
     cameraConfig,
